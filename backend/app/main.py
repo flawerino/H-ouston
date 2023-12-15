@@ -11,26 +11,32 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 import pandas as pd
 
-
-from .mymodules.birthdays import return_birthday, print_birthdays_str
-
 app = FastAPI()
 
-# Dictionary of birthdays
-birthdays_dictionary = {
-    'Albert Einstein': '03/14/1879',
-    'Benjamin Franklin': '01/17/1706',
-    'Ada Lovelace': '12/10/1815',
-    'Donald Trump': '06/14/1946',
-    'Rowan Atkinson': '01/6/1955'
-}
+df = pd.read_csv('/app/app/data.csv', sep=';')
+# Converting all the numbers inside the dataframe as strings for JSON
+df = df.astype(str)
 
-df = pd.read_csv('/app/app/employees.csv')
+# Extract from CSV file the names of the districts and add them in a string
+def print_province_names():
+    print('Welcome to "Find the nearest theater around you". We know the theaters in these districts:')
+    # Checking the existence of "District" column
+    if 'Provincia' not in df.columns:
+        return "The dataframe does not contain any 'District' column"
+    #Extracting the districts' names from the DataFrame
+    province_names = df['Provincia'].unique()
+    #Creating a string with all the names
+    names_str = ', '.join(province_names)
+    return names_str
+# Chiamata alla funzione
+result = print_province_names()
+print(result)
+
 
 @app.get('/csv_show')
 def read_and_return_csv():
-    aux = df['Age'].values
-    return{"Age": str(aux.argmin())}
+    aux = df['CAP'].values
+    return{"CAP": str(aux.argmin())}
 
 @app.get('/')
 def read_root():
@@ -40,36 +46,34 @@ def read_root():
     Returns:
         dict: A simple greeting.
     """
-    return {"Hello": "World"}
+    return {"Hello": "Veneto"}
 
-
-@app.get('/query/{person_name}')
-def read_item(person_name: str):
+@app.get('/query/{district_name}')
+def read_item(district_name: str):
     """
-    Endpoint to query birthdays based on person_name.
-
+    Endpoint to query information based on district_name.
     Args:
-        person_name (str): The name of the person.
-
+        district_name (str): The name of the district.
     Returns:
-        dict: Birthday information for the provided person_name.
+        dict: Information for the provided district_name.
     """
-    person_name = person_name.title()  # Convert to title case for consistency
-    birthday = birthdays_dictionary.get(person_name)
-    if birthday:
-        return {"person_name": person_name, "birthday": birthday}
+   # Step 2: Convert district_name to title case for consistency
+    district_name = district_name.title()
+    #small = df[df['Provincia'] == district_name][['Nome']]
+    # Step 3: Check if the district_name exists in the 'name' column of the DataFrame
+    if district_name in df['Provincia'].values:
+        # Step 4: Get all rows where 'Provincia' is equal to district_name
+        district_info = df[df['Provincia'] == district_name].to_dict(orient='records')
+        print(district_info)
+        return {"district_name": district_name, "district_info": district_info}
     else:
-        return {"error": "Person not found"}
+        return {"Error": "District not found"}
 
 
-@app.get('/module/search/{person_name}')
-def read_item_from_module(person_name: str):
-    return {return_birthday(person_name)}
+@app.get('/module/search/{district_name}')
+def read_item_from_module(district_name: str):
+    return {district_name}
 
-
-@app.get('/module/all')
-def dump_all_birthdays():
-    return {print_birthdays_str()}
 
 
 @app.get('/get-date')
@@ -81,4 +85,4 @@ def get_date():
         dict: Current date in ISO format.
     """
     current_date = datetime.now().isoformat()
-    return JSONResponse(content={"date": current_date})
+    return JSONResponse(content={"date": current_date})
