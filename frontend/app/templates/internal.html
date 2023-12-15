@@ -5,15 +5,15 @@
 {% block content %}
 
     <div class="container mt-5">
-        <h1>Hello, Internal Page!</h1>
-        <p>This is an internal page for interacting with a FastAPI backend.</p>
+        <h1>Goodmorning again,<br> find your Veneto's Theater!</h1>
+        <p>Insert the District from Veneto that you like the most to get its list of Theaters.</p>
 
         <!-- WTForms Form to get input from the user -->
         <form method="POST" action="">
             {{ form.csrf_token }}
             <div class="form-group">
-                {{ form.person_name.label }}
-                {{ form.person_name(class="form-control", placeholder="Enter person name") }}
+                {{ form.district_name.label }}
+                {{ form.district_name(class="form-control", placeholder="Enter a District from Veneto") }}
             </div>
             {{ form.submit(class="btn btn-primary") }}
         </form>
