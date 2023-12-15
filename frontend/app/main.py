@@ -1,7 +1,8 @@
 """
 Frontend module for the Flask application.
 
-This module defines a simple Flask application that serves as the frontend for the project.
+This module defines a simple Flask application 
+that serves as the frontend for the project.
 """
 
 from flask import Flask, render_template
@@ -10,19 +11,23 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a secure secret key
+# Replace with a secure secret key
+app.config['SECRET_KEY'] = 'your_secret_key' 
 
 # Configuration for the FastAPI backend URL
-FASTAPI_BACKEND_HOST = 'http://backend'  # Replace with the actual URL of your FastAPI backend
+# Replace with the actual URL of your FastAPI backend
+FASTAPI_BACKEND_HOST = 'http://backend'   
 BACKEND_URL = f'{FASTAPI_BACKEND_HOST}/query/'
 
 
 class QueryForm(FlaskForm):
-    person_name = StringField('Person Name:')
-    submit = SubmitField('Get Birthday from FastAPI Backend')
+    district_name = StringField('District Name:')
+    submit = SubmitField('Get theaters from FastAPI Backend')
 
 
 @app.route('/')
+
+
 def index():
     """
     Render the index page.
@@ -32,7 +37,8 @@ def index():
     """
     # Fetch the date from the backend
     date_from_backend = fetch_date_from_backend()
-    return render_template('index.html', date_from_backend=date_from_backend)
+    return render_template('index.html', date_from_backend = date_from_backend)
+
 
 def fetch_date_from_backend():
     """
@@ -41,7 +47,7 @@ def fetch_date_from_backend():
     Returns:
         str: Current date in ISO format.
     """
-    backend_url = 'http://backend/get-date'  # Adjust the URL based on your backend configuration
+    backend_url = 'http://backend/get-date'
     try:
         response = requests.get(backend_url)
         response.raise_for_status()  # Raise an HTTPError for bad responses
@@ -51,7 +57,9 @@ def fetch_date_from_backend():
         return 'Date not available'
 
 
-@app.route('/internal', methods=['GET', 'POST'])
+@app.route('/internal', methods = ['GET', 'POST'])
+
+
 def internal():
     """
     Render the internal page.
@@ -63,22 +71,25 @@ def internal():
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
-        person_name = form.person_name.data
+        district_name = form.district_name.data
 
         # Make a GET request to the FastAPI backend
-        fastapi_url = f'{FASTAPI_BACKEND_HOST}/query/{person_name}'
+        fastapi_url = f'{FASTAPI_BACKEND_HOST}/query/{district_name}'
         response = requests.get(fastapi_url)
+        print(response.content)
 
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            result = data.get('birthday', f'Error: Birthday not available for {person_name}')
-            return render_template('internal.html', form=form, result=result, error_message=error_message)
+            result = data.get('district_info', f'Error: District not available for {district_name}')
+            return render_template('internal.html', form = form, 
+result = result, error_message = error_message)
         else:
-            error_message = f'Error: Unable to fetch birthday for {person_name} from FastAPI Backend'
+            error_message = f'Error: Unable to fetch District for {district_name} from FastAPI Backend'
 
-    return render_template('internal.html', form=form, result=None, error_message=error_message)
+    return render_template('internal.html', form = form, 
+result = None, error_message = error_message)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host = '0.0.0.0', port = 80, debug = True)
