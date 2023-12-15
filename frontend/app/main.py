@@ -19,7 +19,7 @@ BACKEND_URL = f'{FASTAPI_BACKEND_HOST}/query/'
 
 class QueryForm(FlaskForm):
     district_name = StringField('District Name:')
-    submit = SubmitField('Get theaters from FastAPI Backend')
+    submit = SubmitField('Get Theaters from our Super Backend')
 
 
 @app.route('/')
@@ -76,7 +76,7 @@ def internal():
             result = data.get('district_info', f'Error: District not available for {district_name}')
             return render_template('internal.html', form=form, result=result, error_message=error_message)
         else:
-            error_message = f'Error: Unable to fetch District for {district_name} from FastAPI Backend'
+            error_message = f'Error: Unable to fetch District for {district_name} from our Super but limited Backend'
 
     return render_template('internal.html', form=form, result=None, error_message=error_message)
 
