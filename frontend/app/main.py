@@ -19,15 +19,18 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 FASTAPI_BACKEND_HOST = 'http://backend'  
 BACKEND_URL = f'{FASTAPI_BACKEND_HOST}/query/'
 
-
+#Class form for district name input 
 class QueryForm(FlaskForm):
     district_name = StringField('District Name:')
     submit = SubmitField('Get Theaters from our Super Backend')
 
+#Class form for city name input 
+class CityQueryForm(FlaskForm):
+    city_name = StringField('City Name:')
+    submit = SubmitField('Get Theaters from our Super Backend')
+
 
 @app.route('/')
-
-
 def index():
     """
     Render the index page.
@@ -58,9 +61,8 @@ def fetch_date_from_backend():
         return 'Date not available'
 
 
+#Function 1
 @app.route('/internal', methods = ['GET', 'POST'])
-
-
 def internal():
     """
     Render the internal page.
@@ -69,25 +71,58 @@ def internal():
         str: Rendered HTML content for the index page.
     """
     form = QueryForm()
+    theaters = None
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
         district_name = form.district_name.data
 
         # Make a GET request to the FastAPI backend
-        fastapi_url = f'{FASTAPI_BACKEND_HOST}/query/{district_name}'
+        fastapi_url = f'{FASTAPI_BACKEND_HOST}/district/{district_name}'
         response = requests.get(fastapi_url)
         print(response.content)
 
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            result = data.get('district_info', f'Error: District not available for {district_name}')
-            return render_template('internal.html', form = form, result = result, error_message = error_message)
+            theaters = data.get('district', 'No data available')
+            #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch District for {district_name} from our Super but limited Backend'
 
-    return render_template('internal.html', form = form, result = None, error_message = error_message)
+    return render_template('internal.html', form = form, theaters = theaters, result = None, error_message = error_message)
+
+#Function 2
+@app.route('/city', methods = ['GET', 'POST'])
+def city_query():
+    """
+    Render the internal page.
+
+    Returns:
+        str: Rendered HTML content for the index page.
+    """
+    form = CityQueryForm()
+    teatri = None
+    error_message = None  # Initialize error message
+
+    if form.validate_on_submit():
+        city_name = form.city_name.data
+
+        # Make a GET request to the FastAPI backend
+        fastapi_url = f'{FASTAPI_BACKEND_HOST}/city/{city_name}'
+        response = requests.get(fastapi_url)
+        print(response.content)
+
+        if response.status_code == 200:
+            # Extract and display the result from the FastAPI backend
+            data = response.json()
+            teatri = data.get('city', 'No data available')
+            #result = data.get('city_info', f'Error: City not available for {city_name}')
+            #return render_template('internal.html', form = form, result = result, error_message = error_message)
+        else:
+            error_message = f'Error: Unable to fetch City for {city_name} from our Super but limited Backend'
+
+    return render_template('internal.html', form = form, teatri = teatri, error_message = error_message)
 
 
 if __name__ == '__main__':
