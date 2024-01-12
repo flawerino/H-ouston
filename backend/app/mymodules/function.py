@@ -1,0 +1,67 @@
+import pandas as pd
+
+# Creating a string with districts' name from CSV file
+def print_province_names():
+    #Load CSV file 
+    df = pd.read_csv('/app/app/data.csv', sep = ';')
+    print("Find the theaters in these districts:")
+    # Checking the existence of "District" column
+    if 'Provincia' not in df.columns:
+        return "The dataframe does not contain any 'District' column"
+    #Extracting the districts' names from the DataFrame
+    province_names = df['Provincia'].unique()
+    #Creating a string with all the names
+    names_str = ', '.join(province_names)
+    return names_str
+    # Chiamata alla funzione
+    result = print_province_names()
+    print(result)
+
+def district(district_name, df):
+    """
+    Endpoint to query information based on district_name.
+    Args:
+        district_name (str): The name of the district.
+    Returns:
+        dict: Information for the provided district_name.
+    """
+    df = pd.read_csv('/app/app/data.csv', sep = ';')
+    # Converting all the numbers inside the dataframe as strings for JSON
+    df = df.astype(str)
+    # Convert district_name to title case for consistency
+    district_name = district_name.title()
+    # Check if the district_name exists in the 'name' column of the DataFrame
+    if district_name in df['Provincia'].values:
+    # Get rows where 'Provincia' is equal to district_name
+        district_info = df[df['Provincia'] == district_name].to_dict(orient='records') 
+        for info in district_info:
+            print(info)
+        return {"district_name": district_name, "district_info": district_info}
+    else:
+        return {"Error": "District not found"}
+    
+def city(city_name, df):
+    """
+    Endpoint to query information based on district_name.
+    Args:
+        district_name (str): The name of the district.
+    Returns:
+        dict: Information for the provided district_name.
+    """
+    df = pd.read_csv('/app/app/data.csv', sep = ';')
+    # Converting all the numbers inside the dataframe as strings for JSON
+    df = df.astype(str)
+    # Convert district_name to title case for consistency
+    district_name = district_name.title()
+    # Convert city name to title case for consistency
+    city_name = city_name.title()
+    # Check if the city_name exists in the 'name' column of the DataFrame
+    if city_name in df['Città'].values:
+    # Get rows where 'Città' is equal to city_name
+        city_info = df[df['Città'] == city_name].to_dict(orient='records')
+        for info in city_info:
+            print(info)
+        return {"city_name": city_name, "city_info": city_info}
+    else:
+        return {"Error": "City not found"}
+    
