@@ -10,8 +10,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 import pandas as pd
 
-from .mymodules.function import district
-from .mymodules.function import city
+from .mymodules.function import district, city
 
 app = FastAPI()
 

@@ -8,7 +8,7 @@ as the frontend for the project.
 from flask import Flask, render_template
 import requests  # Import the requests library to make HTTP requests
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, SelectField
 
 app = Flask(__name__)
 # Replace with a secure secret key
@@ -19,7 +19,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 FASTAPI_BACKEND_HOST = 'http://backend'  
 BACKEND_URL = f'{FASTAPI_BACKEND_HOST}/query/'
 
-#Class form for district name input 
+#Class form for district name selection 
 class QueryForm(FlaskForm):
     district_name = StringField('District Name:')
     submit = SubmitField('Get Theaters from our Super Backend')
@@ -85,12 +85,14 @@ def internal():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            theaters = data.get('district', 'No data available')
+            theaters = data.get('district_info', 'No data available')
+            #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
-            error_message = f'Error: Unable to fetch District for {district_name} from our Super but limited Backend'
+            error_message = f'Error: Unable to fetch City for {district_name} from our Super but limited Backend'
 
-    return render_template('internal.html', form = form, theaters = theaters, result = None, error_message = error_message)
+    return render_template('internal.html', form = form, theaters = theaters, error_message = error_message)
+
 
 #Function 2
 @app.route('/city', methods = ['GET', 'POST'])
@@ -116,13 +118,13 @@ def city_query():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            teatri = data.get('city', 'No data available')
+            teatri = data.get('city_info', 'No data available')
             #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch City for {city_name} from our Super but limited Backend'
 
-    return render_template('internal.html', form = form, teatri = teatri, error_message = error_message)
+    return render_template('city.html', form = form, teatri = teatri, error_message = error_message)
 
 
 if __name__ == '__main__':

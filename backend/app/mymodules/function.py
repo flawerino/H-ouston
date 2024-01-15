@@ -51,8 +51,6 @@ def city(city_name, df):
     df = pd.read_csv('/app/app/data.csv', sep = ';')
     # Converting all the numbers inside the dataframe as strings for JSON
     df = df.astype(str)
-    # Convert district_name to title case for consistency
-    district_name = district_name.title()
     # Convert city name to title case for consistency
     city_name = city_name.title()
     # Check if the city_name exists in the 'name' column of the DataFrame
