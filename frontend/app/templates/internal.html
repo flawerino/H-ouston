@@ -17,8 +17,8 @@
             - Rovigo.
         </p>
 
-        <!-- WTForms Form to get input from the user -->
-        <form method="POST" action="">
+        <!-- Display for Function 1 -->
+        <form method="POST" action="{{ url_for('internal' )}}">
             {{ form.csrf_token }}
             <div class="form-group">
                 {{ form.district_name.label }}
