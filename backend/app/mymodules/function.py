@@ -23,7 +23,7 @@ def district(district_name, df):
     Args:
         district_name (str): The name of the district.
     Returns:
-        dict: Information for the provided district_name.
+        district_info: Information for the provided district_name.
     """
     df = pd.read_csv('/app/app/data.csv', sep = ';')
     # Converting all the numbers inside the dataframe as strings for JSON
@@ -42,11 +42,11 @@ def district(district_name, df):
     
 def city(city_name, df):
     """
-    Endpoint to query information based on district_name.
+    Endpoint to query information based on city_name.
     Args:
-        district_name (str): The name of the district.
+        city_name (str): The name of the city.
     Returns:
-        dict: Information for the provided district_name.
+        city_info: Information for the provided city_name.
     """
     df = pd.read_csv('/app/app/data.csv', sep = ';')
     # Converting all the numbers inside the dataframe as strings for JSON
@@ -63,3 +63,22 @@ def city(city_name, df):
     else:
         return {"Error": "City not found"}
     
+
+def capacity_statistics(district_name, df2):
+    """
+    Calculating mean, median, maximum and minimum capacity for the cinemas of a given district 
+    """
+    df2 = pd.read_csv('/app/app/cinema.csv', sep = ';')
+    #To select only the lines that regards CINEMA 
+    df_cinema1 = df2[df2['Genere locale'] == 'CINEMA']
+    #To select only the lines that regards the cinemas of the chosen distric  
+    df_cinema = df_cinema1[df_cinema1['Provincia'] == (district_name.upper())]
+    # Transforming 'Capienza' in integer 
+    df_cinema['Capienza'] = pd.to_numeric(df_cinema['Capienza'], errors='coerce')
+
+    # Calculating statistics
+    mean = (df_cinema['Capienza'].mean()).astype(str)
+    #median = (df_cinema['Capienza'].median()).astype(str)
+    maximum = (df_cinema['Capienza'].max()).astype(str)
+    minimum = (df_cinema['Capienza'].min()).astype(str)
+    return {'mean': mean, 'maximum': maximum, 'minimum': minimum}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %} Internal of Frontend {% endblock %}
+
+{% block content %}
+<form action="{{ url_for('download_file') }}" method="post">
+    {{ form.hidden_tag() }}
+
+    <!-- Districts Dropdown -->
+    {{ form.dropdown_districts.label }}
+    <select name="dropdown_districts">
+        {% for district_value, district_label in form.dropdown_districts.choices %}
+            <option value="{{ district_value }}">{{ district_label }}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+
+    <!-- Cities Dropdown -->
+    {% if form2 %}
+        {{ form2.dropdown_cities.label }}
+        <select name="dropdown_cities">
+            {% for city_value, city_label in form2.dropdown_cities.choices %}
+                <option value="{{ city_value }}">{{ city_label }}</option>
+            {% endfor %}
+        </select>
+        <br>
+    {% endif %}
+
+    <!-- Theaters Dropdown -->
+    {% if form3 %}
+        {{ form3.dropdown_theaters.label }}
+        <select name="dropdown_theaters">
+            {% for theater_value, theater_label in form3.dropdown_theaters.choices %}
+                <option value="{{ theater_value }}">{{ theater_label }}</option>
+            {% endfor %}
+        </select>
+        <br>
+    {% endif %}
+
+    {{ form.reset() }}
+    {{ active_form.submit() }}
+</form>
+{% endblock %}

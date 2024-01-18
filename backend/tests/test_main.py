@@ -1,49 +1,52 @@
-import os
-import sys
+import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
+from app.main import app, print_province_names, district, city, capacity_statistics
 
-# Add the project root to the sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# Now you can do the relative import
-from app.main import app
+# Fixture to load CSV data
+@pytest.fixture
+def sample_data():
+    df_data = {
+        'Provincia': ['District1', 'District1', 'District2', 'District3'],
+        'Città': ['City1', 'City2', 'City3', 'City4'],
+        'Genere locale': ['Theatre', 'CINEMA', 'CINEMA', 'Theatre'],
+        'Capienza': [100, 200, 150, 120],
+    }
+    df = pd.DataFrame(df_data)
+    return df.to_csv(index=False, sep=';')
 
+# Test print_province_names function
+def test_print_province_names(sample_data, capsys):
+    with open('/app/app/data.csv', 'w') as f:
+        f.write(sample_data)
+    print_province_names()
+    captured = capsys.readouterr()
+    assert captured.out.strip() == 'District1, District2, District3'
 
-"""
-Execute this test by running on the terminal (from the app/) the command:
-pytest --cov=app --cov-report=html tests/
- """
+# Test district function
+def test_district_found(sample_data):
+    df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
+    result = district('District1', df)
+    assert result == {"district_name": "District1", "district_info": [{'Provincia': 'District1', 'Città': 'City1', 'Genere locale': 'Theatre', 'Capienza': 100}, {'Provincia': 'District1', 'Città': 'City2', 'Genere locale': 'CINEMA', 'Capienza': 200}]}
 
-client = TestClient(app)
+def test_district_not_found(sample_data):
+    df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
+    result = district('UnknownDistrict', df)
+    assert result == {"Error": "District not found"}
 
+# Test city function
+def test_city_found(sample_data):
+    df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
+    result = city('City3', df)
+    assert result == {"city_name": "City3", "city_info": [{'Provincia': 'District2', 'Città': 'City3', 'Genere locale': 'CINEMA', 'Capienza': 150}]}
 
-def test_read_main():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"Hello": "World"}
+def test_city_not_found(sample_data):
+    df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
+    result = city('UnknownCity', df)
+    assert result == {"Error": "City not found"}
 
-
-def test_success_read_item():
-    response = client.get("/query/Albert Einstein")
-    assert response.status_code == 200
-    assert response.json() == {"person_name": 'Albert Einstein', 
-                               "birthday": '03/14/1879'}
-
-
-""" def test_fail_read_item():
-    response = client.get("/query/Pippo")
-    assert response.status_code == 200
-    assert response.json() == {"error": "Person not found"} """
-
-
-# The following will generate an error in pycheck
-""" def test_success_read_item_module():
-    response = client.get("/module/search/Albert Einstein")
-    assert response.status_code == 200
-    assert response.json() == {"Albert Einstein's birthday is 03/14/1879."} """
-
-
-# The following is correct, can you spot the difference?
-def test_success_read_item_module():
-    response = client.get("/module/search/Albert Einstein")
-    assert response.status_code == 200
-    assert response.json() == ["Albert Einstein's birthday is 03/14/1879."]
+# Test capacity_statistics function
+def test_capacity_statistics(sample_data):
+    df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
+    result = capacity_statistics('District1', df)
+    assert result == {'mean': 150.0, 'median': 150.0, 'maximum': 200, 'minimum': 100}
