@@ -9,6 +9,7 @@ The last function let the user select a theater and download a file with the inf
 
 - data.csv
 This dataset is about theaters in Veneto, we focused on the districts and the cities for this one, giving back to the user the information contained in the dataset.
+We developed also another function that allows the user to choose a specific theater selecting the district, the city and then the theater, it will then be possible to download a file containing the infromation about that theater.
 Source: https://dati.veneto.it/opendata/spazi_teatrali_del_veneto
 
 - cinema.csv
