@@ -5,10 +5,11 @@ This module defines a simple Flask application that serves
 as the frontend for the project.
 """
 
-from flask import Flask, render_template
-import requests  # Import the requests library to make HTTP requests
+from flask import Flask, render_template, request, jsonify, send_file
+import requests # Import the requests library to make HTTP requests
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField
+from wtforms import StringField, SubmitField, SelectField, HiddenField, validators
+import io
 
 app = Flask(__name__)
 # Replace with a secure secret key
@@ -21,13 +22,39 @@ BACKEND_URL = f'{FASTAPI_BACKEND_HOST}/query/'
 
 #Class form for district name selection 
 class QueryForm(FlaskForm):
-    district_name = StringField('District Name:')
+    province_choices = [('Verona', 'Verona'), ('Vicenza', 'Vicenza'), ('Belluno', 'Belluno'), ('Treviso', 'Treviso'), ('Venezia', 'Venezia'), ('Padova', 'Padova'), ('Rovigo', 'Rovigo')]
+    district_name = SelectField('District Name:', choices= ([('','Select District')]+province_choices), validators = [validators.NoneOf('','Select District')])
     submit = SubmitField('Get Theaters from our Super Backend')
 
 #Class form for city name input 
 class CityQueryForm(FlaskForm):
     city_name = StringField('City Name:')
     submit = SubmitField('Get Theaters from our Super Backend')
+
+
+class MyForm1(FlaskForm):
+    dropdown_districts = SelectField('Select a District', choices=[], coerce=str)
+    submit = SubmitField('Confirm District')
+    reset = SubmitField('Reset')
+
+    def set_choices(self, districts):
+        self.dropdown_districts.choices = [(district[0], district[1]) for district in districts]
+
+
+class MyForm2(FlaskForm):
+    dropdown_cities = SelectField('Select a City', choices=[], coerce=str)
+    submit = SubmitField('Confirm City')
+
+    def set_choices(self, cities):
+        self.dropdown_cities.choices = [(city[0], city[1]) for city in cities]
+
+
+class MyForm3(FlaskForm):
+    dropdown_theaters = SelectField('Select a Theater', choices=[], coerce=str)
+    submit = SubmitField('Download Info')
+
+    def set_choices(self, theaters):
+        self.dropdown_theaters.choices = [(theater[0], theater[1]) for theater in theaters]
 
 
 @app.route('/')
@@ -71,7 +98,7 @@ def internal():
         str: Rendered HTML content for the index page.
     """
     form = QueryForm()
-    theaters = None
+    thea = None
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
@@ -85,26 +112,26 @@ def internal():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            theaters = data.get('district_info', 'No data available')
+            thea = data.get('district_info', 'No data available')
             #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch City for {district_name} from our Super but limited Backend'
 
-    return render_template('internal.html', form = form, theaters = theaters, error_message = error_message)
+    return render_template('internal.html', form = form, thea = thea, error_message = error_message)
 
 
 #Function 2
 @app.route('/city', methods = ['GET', 'POST'])
 def city_query():
     """
-    Render the internal page.
+    Render the city page.
 
     Returns:
         str: Rendered HTML content for the index page.
     """
     form = CityQueryForm()
-    teatri = None
+    ters = None
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
@@ -118,13 +145,107 @@ def city_query():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            teatri = data.get('city_info', 'No data available')
+            ters = data.get('city_info', 'No data available')
             #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch City for {city_name} from our Super but limited Backend'
 
-    return render_template('city.html', form = form, teatri = teatri, error_message = error_message)
+    return render_template('city.html', form = form, ters = ters, error_message = error_message)
+
+
+#Function 3
+@app.route('/cinemastatistics', methods = ['GET', 'POST'])
+def district_query():
+    """
+    Render the cinemastatistics page.
+
+    Returns:
+        str: Rendered HTML content for the index page.
+    """
+    form = QueryForm()
+    statistics = None
+    error_message = None  # Initialize error message
+
+    if form.validate_on_submit():
+        district_name = form.district_name.data
+
+        # Make a GET request to the FastAPI backend
+        fastapi_url = f'{FASTAPI_BACKEND_HOST}/capacity_statistics/{district_name}'
+        response = requests.get(fastapi_url)
+        print(response.content)
+
+        if response.status_code == 200:
+            # Extract and display the result from the FastAPI backend
+            data = response.json()
+            statistics = data.get('district_name', 'No data available')
+            #result = data.get('city_info', f'Error: City not available for {city_name}')
+            #return render_template('internal.html', form = form, result = result, error_message = error_message)
+        else:
+            error_message = f'Error: Unable to fetch statistics for {district_name} from our Super but limited Backend'
+
+    return render_template('cinemastatistics.html', form = form, statistics = data, error_message = error_message)
+
+
+@app.route('/file', methods=['GET', 'POST'])
+def download_file():
+    districts = requests.post(f'{FASTAPI_BACKEND_HOST}/select_districts').json()
+    form = MyForm1()
+    form.set_choices(districts)
+    print(form.dropdown_districts.choices)
+
+    form2 = MyForm2()
+    form3 = MyForm3()
+    active_form = form
+
+    if request.method == 'POST':
+        if form.validate_on_submit() and form.submit.data:
+            selected_district = request.form.get('dropdown_districts')
+            form.set_choices([(selected_district, selected_district)])
+            print(selected_district)
+            cities = requests.post(f'{FASTAPI_BACKEND_HOST}/select_cities', data={"district": selected_district}).json()
+
+            form2.set_choices(cities)
+            print(cities)
+            active_form = form2
+
+            if form2.validate_on_submit() and form2.submit.data:
+                selected_city = request.form.get('dropdown_cities')
+                form2.set_choices([(selected_city, selected_city)])
+                theaters = requests.post(f'{FASTAPI_BACKEND_HOST}/select_theater', data={"city": selected_city}).json()
+
+                form3.set_choices(theaters)
+                active_form = form3
+
+                if form3.validate_on_submit() and form3.submit.data:
+                    selected_option = form3.dropdown_theaters.data
+                    form3.set_choices([(selected_option, selected_option)])
+                    try:
+                        # Send POST request with selected option
+                        response = requests.post(f'{FASTAPI_BACKEND_HOST}/download', data={"selected_option": selected_option, "district": selected_district, "city": selected_city})
+                        print(response.content)
+                        if response.status_code == 200:
+                            # Convert response content to a file-like object
+                            file_content = io.BytesIO(response.content)
+
+                            # Return the file content for download
+                            return send_file(file_content, as_attachment=True, download_name=f'{selected_option}.txt')
+                        else:
+                            return jsonify({"status": "error", "message": "File download failed"})
+
+                    except Exception as e:
+                        # Log the exception for debugging
+                        print(f"Exception: {e}")
+                        abort(500)
+
+        elif form.reset.data:
+            form.set_choices(districts)
+            form2.set_choices([])
+            form3.set_choices([])
+            active_form = form
+
+
+    return render_template('file.html', form=form, form2=form2, form3=form3, active_form=active_form)
 
 
 if __name__ == '__main__':
