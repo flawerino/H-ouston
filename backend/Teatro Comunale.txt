@@ -1,0 +1,2 @@
+Provincia,Nome,Indirizzo,Città,CAP,Telefono
+Rovigo,Teatro Comunale,Via Roma 66,Canaro,45034.0,0425 940016 (int1)

@@ -42,7 +42,6 @@ async def select_districts():
     districts = list(df['Provincia'].unique())
     # Create a list of tuples in the format [('Venezia', 'Venezia'), ...]
     result = [(district, district) for district in districts]
-    print(result)
 
     return result
 
@@ -101,26 +100,13 @@ async def download(selected_option: str = Form(...), district: str = Form(...), 
         # Write the content to the file
         file.write(file_content)
 
-    print(f"District '{selected_option}' has been written to {file_name}")
 
     # Return the file as a downloadable response
     return FileResponse(file_name, filename=file_name, media_type='application/octet-stream')
 
-@app.post('/select_districts')
-async def select_districts():
-
-    # Extract unique city values from the filtered data
-    districts = list(df['Provincia'].unique())
-
-    # Create a list of tuples in the format [('Venezia', 'Venezia'), ...]
-    result = [(district, district) for district in districts]
-    print(result)
-
-    return result
 
 @app.post('/select_cities')
 async def select_cities(district: str = Form(...)):
-    print(district)
     # Filter the DataFrame based on the selected district
     filtered_df = df[df['Provincia'] == district]
 
@@ -129,7 +115,6 @@ async def select_cities(district: str = Form(...)):
 
     # Create a list of tuples in the format [('Venezia', 'Venezia'), ...]
     result = [(city, city) for city in cities]
-    print(result)
 
     return result
 
@@ -143,7 +128,6 @@ async def select_theater(city: str  = Form(...)):
 
     # Create a list of tuples in the format [('Venezia', 'Venezia'), ...]
     result = [(theater, theater) for theater in theaters]
-    print(result)
 
     return result
 
