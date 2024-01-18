@@ -5,7 +5,7 @@
 {% block content %}
 
     <div class="container mt-5">
-        <h1>Goodmorning again,<br> find your Veneto's Theater!</h1>
+        <h1>Goodmorning again,<br> Find your District's Theater!</h1>
         <p>Insert the District from Veneto that you like the most to get its list of Theaters.</p>
 
         <!-- Display for Function 1 -->
@@ -13,15 +13,15 @@
             {{ form.csrf_token }}
             <div class="form-group">
                 {{ form.district_name.label }}
-                {{ form.district_name(class="form-control", placeholder="Choose a District from Veneto") }}
+                {{ form.district_name(class="form-control", placeholder="Choose a District") }}
             </div>
             {{ form.submit(class="btn btn-primary") }}
         </form>
 
         <!-- Display the result here -->
         <div id="resultContainer" class="mt-3">
-            {% if thea %}
-                <p>{{ thea }}</p>
+            {% if district_theaters %}
+                <p>{{ district_theaters }}</p>
             {% endif %}
             {% if error_message %}
                 <p class="text-danger">{{ error_message }}</p>

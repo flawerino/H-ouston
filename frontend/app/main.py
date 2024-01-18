@@ -31,6 +31,12 @@ class CityQueryForm(FlaskForm):
     city_name = StringField('City Name:')
     submit = SubmitField('Get Theaters from our Super Backend')
 
+#Class form for district name selection for statistics
+class CinemaQueryForm(FlaskForm):
+    province_choices = [('Verona', 'Verona'), ('Vicenza', 'Vicenza'), ('Belluno', 'Belluno'), ('Treviso', 'Treviso'), ('Venezia', 'Venezia'), ('Padova', 'Padova'), ('Rovigo', 'Rovigo')]
+    district_name = SelectField('District Name:', choices= ([('','Select District')]+province_choices), validators = [validators.NoneOf('','Select District')])
+    submit = SubmitField('Get statistics from our Super Backend')
+
 
 class MyForm1(FlaskForm):
     dropdown_districts = SelectField('Select a District', choices=[], coerce=str)
@@ -55,6 +61,12 @@ class MyForm3(FlaskForm):
 
     def set_choices(self, theaters):
         self.dropdown_theaters.choices = [(theater[0], theater[1]) for theater in theaters]
+
+
+# Class form for dataset path input
+class DistrictQueryForm(FlaskForm):
+    dis_name_cinema = StringField('District name:')
+    submit = SubmitField('Get average capacity from our Super Backend')
 
 
 @app.route('/')
@@ -98,7 +110,7 @@ def internal():
         str: Rendered HTML content for the index page.
     """
     form = QueryForm()
-    thea = None
+    district_theaters = None
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
@@ -112,13 +124,13 @@ def internal():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            thea = data.get('district_info', 'No data available')
+            district_theaters = data.get('district_info', 'No data available')
             #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch City for {district_name} from our Super but limited Backend'
 
-    return render_template('internal.html', form = form, thea = thea, error_message = error_message)
+    return render_template('internal.html', form = form, district_theaters = district_theaters, error_message = error_message)
 
 
 #Function 2
@@ -131,7 +143,7 @@ def city_query():
         str: Rendered HTML content for the index page.
     """
     form = CityQueryForm()
-    ters = None
+    city_theaters = None
     error_message = None  # Initialize error message
 
     if form.validate_on_submit():
@@ -145,13 +157,13 @@ def city_query():
         if response.status_code == 200:
             # Extract and display the result from the FastAPI backend
             data = response.json()
-            ters = data.get('city_info', 'No data available')
+            city_theaters = data.get('city_info', 'No data available')
             #result = data.get('city_info', f'Error: City not available for {city_name}')
             #return render_template('internal.html', form = form, result = result, error_message = error_message)
         else:
             error_message = f'Error: Unable to fetch City for {city_name} from our Super but limited Backend'
 
-    return render_template('city.html', form = form, ters = ters, error_message = error_message)
+    return render_template('city.html', form = form, city_theaters = city_theaters, error_message = error_message)
 
 
 #Function 3
@@ -163,9 +175,10 @@ def district_query():
     Returns:
         str: Rendered HTML content for the index page.
     """
-    form = QueryForm()
+    form = CinemaQueryForm()
     statistics = None
     error_message = None  # Initialize error message
+    data = {}
 
     if form.validate_on_submit():
         district_name = form.district_name.data
@@ -187,6 +200,7 @@ def district_query():
     return render_template('cinemastatistics.html', form = form, statistics = data, error_message = error_message)
 
 
+#Funzione 4 
 @app.route('/file', methods=['GET', 'POST'])
 def download_file():
     districts = requests.post(f'{FASTAPI_BACKEND_HOST}/select_districts').json()
@@ -246,6 +260,39 @@ def download_file():
 
 
     return render_template('file.html', form=form, form2=form2, form3=form3, active_form=active_form)
+
+
+#Funzione 5 
+@app.route('/cinema_district', methods = ['GET', 'POST'])
+def cinema_district_query():
+    """
+    Render the internal page.
+
+    Returns:
+        str: Rendered HTML content for the index page.
+    """
+    form = DistrictQueryForm()
+    cinema_dis = None
+    error_message = None  # Initialize error message
+
+    if form.validate_on_submit():
+        dis_name_cinema = form.dis_name_cinema.data
+
+        # Make a GET request to the FastAPI backend
+        fastapi_url = f'{FASTAPI_BACKEND_HOST}/district_cinema/{dis_name_cinema}'
+        response = requests.get(fastapi_url)
+        print(response.content)
+
+        if response.status_code == 200:
+            # Extract and display the result from the FastAPI backend
+            data = response.json()
+            cinema_dis = data.get('dis_info_cinema', 'No data available')
+            #result = data.get('city_info', f'Error: City not available for {city_name}')
+            #return render_template('internal.html', form = form, result = result, error_message = error_message)
+        else:
+            error_message = f'Error: Unable to fetch City for {dis_name_cinema} from our Super but limited Backend'
+
+    return render_template('cinema_district.html', form = form, cinema_dis = cinema_dis, error_message = error_message)
 
 
 if __name__ == '__main__':

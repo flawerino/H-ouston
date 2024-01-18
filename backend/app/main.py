@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from datetime import datetime
 import pandas as pd
 
-from .mymodules.function import district, city, capacity_statistics
+from .mymodules.function import district, city, capacity_statistics, district_cinema
 
 app = FastAPI()
 
@@ -146,6 +146,21 @@ async def select_theater(city: str  = Form(...)):
     print(result)
 
     return result
+
+#Function 5
+@app.get('/district_cinema/{dis_name_cinema}')
+def get_district_cinema(dis_name_cinema: str):
+    """
+    if dis_name_cinema in df_cinema['Provincia'].values:
+        # Get rows where 'Provincia' is equal to dis_name_cinema
+        dis_info_cinema = df_cinema[df_cinema['Provincia'] == dis_name_cinema].to_dict(orient='records')
+        print(dis_info_cinema)
+        return {"dis_name_cinema": dis_name_cinema, "dis_info_cinema": dis_info_cinema}
+    else:
+        return {"Error": "District not found"}
+    """
+    dist = district_cinema(dis_name_cinema, df_cinema)
+    return {"dis_name_cinema": dis_name_cinema, "dis_info_cinema": dist}
 
 @app.get('/get-date')
 def get_date():

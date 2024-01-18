@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app, print_province_names, district, city, capacity_statistics
+from .mymodules.function import district, city, capacity_statistics, district_cinema
 
 # Fixture to load CSV data
 @pytest.fixture
@@ -50,3 +50,19 @@ def test_capacity_statistics(sample_data):
     df = pd.read_csv(pd.compat.StringIO(sample_data), sep=';')
     result = capacity_statistics('District1', df)
     assert result == {'mean': 150.0, 'median': 150.0, 'maximum': 200, 'minimum': 100}
+
+# Test district_cinema function
+def test_district_cinema_found(cinema_data):
+    df = pd.read_csv(pd.compat.StringIO(cinema_data), sep=';')
+    result = district_cinema('District1', df)
+    assert result == {"dis_name_cinema": "District1", "dis_info_cinema": [{'Provincia': 'District1', 'Genere locale': 'CINEMA', 'Capienza': 100}, {'Provincia': 'District1', 'Genere locale': 'CINEMA', 'Capienza': 200}]}
+
+def test_district_cinema_not_found(cinema_data):
+    df = pd.read_csv(pd.compat.StringIO(cinema_data), sep=';')
+    result = district_cinema('UnknownDistrict', df)
+    assert result == {"Error": "District not found"}
+
+def test_district_cinema_different_case(cinema_data):
+    df = pd.read_csv(pd.compat.StringIO(cinema_data), sep=';')
+    result = district_cinema('district1', df)
+    assert result == {"dis_name_cinema": "district1", "dis_info_cinema": [{'Provincia': 'District1', 'Genere locale': 'CINEMA', 'Capienza': 100}, {'Provincia': 'District1', 'Genere locale': 'CINEMA', 'Capienza': 200}]}

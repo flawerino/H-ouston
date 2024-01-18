@@ -5,23 +5,23 @@
 {% block content %}
 
     <div class="container mt-5">
-        <h1>Always us!<br> Find your City's Theater!</h1>
-        <p>Insert the City from Veneto that you like the most to get its list of Theaters.</p>
+        <h1>Almost at the end!<br> Find your District's Cinema!</h1>
+        <p>Insert the District from Veneto that you like the most to get its list of Cinemas.</p>
 
-        <!-- Display for function 2 -->
-        <form method="POST" action="{{ url_for('city_query' )}}">
+        <!-- Display for Function 1 -->
+        <form method="POST" action="{{ url_for('cinema_district_query' )}}">
             {{ form.csrf_token }}
             <div class="form-group">
-                {{ form.city_name.label }}
-                {{ form.city_name(class="form-control", placeholder="Enter a City from Veneto") }}
+                {{ form.dis_name_cinema.label }}
+                {{ form.dis_name_cinema(class="form-control", placeholder="Enter a District from Veneto") }}
             </div>
             {{ form.submit(class="btn btn-primary") }}
         </form>
 
         <!-- Display the result here -->
         <div id="resultContainer" class="mt-3">
-            {% if city_theaters %}
-                <p>{{ city_theaters }}</p>
+            {% if cinema_dis %}
+                <p>{{ cinema_dis }}</p>
             {% endif %}
             {% if error_message %}
                 <p class="text-danger">{{ error_message }}</p>
