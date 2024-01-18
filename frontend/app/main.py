@@ -234,23 +234,17 @@ def download_file():
                 if form3.validate_on_submit() and form3.submit.data:
                     selected_option = form3.dropdown_theaters.data
                     form3.set_choices([(selected_option, selected_option)])
-                    try:
-                        # Send POST request with selected option
-                        response = requests.post(f'{FASTAPI_BACKEND_HOST}/download', data={"selected_option": selected_option, "district": selected_district, "city": selected_city})
-                        print(response.content)
-                        if response.status_code == 200:
-                            # Convert response content to a file-like object
-                            file_content = io.BytesIO(response.content)
+                    # Send POST request with selected option
+                    response = requests.post(f'{FASTAPI_BACKEND_HOST}/download', data={"selected_option": selected_option, "district": selected_district, "city": selected_city})
+                    print(response.content)
+                    if response.status_code == 200:
+                        # Convert response content to a file-like object
+                        file_content = io.BytesIO(response.content)
 
-                            # Return the file content for download
-                            return send_file(file_content, as_attachment=True, download_name=f'{selected_option}.txt')
-                        else:
-                            return jsonify({"status": "error", "message": "File download failed"})
-
-                    except Exception as e:
-                        # Log the exception for debugging
-                        print(f"Exception: {e}")
-                        abort(500)
+                        # Return the file content for download
+                        return send_file(file_content, as_attachment=True, download_name=f'{selected_option}.txt')
+                    else:
+                        return jsonify({"status": "error", "message": "File download failed"})
 
         elif form.reset.data:
             form.set_choices(districts)
