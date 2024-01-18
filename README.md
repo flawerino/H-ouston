@@ -1,6 +1,22 @@
 # H-ouston
-This project is based on a dataset of theaters of the different Veneto's districts.
-It will allow the user to type the district in which is interested to know the theaters   present in that district and obtain info about them.
+
+This project is based on two datasets, both about Veneto; one deals with theaters and the other one with cinemas.
+It will allow the user to type the district or the city in which is interested to know the theaters or cinemas present in that place and obtain info about them.
+Another function allow the user to see the mean, minimum and maximum regarding the capacity of cinemas in a district.
+The last function let the user select a theater and download a file with the informations about it.
+
+### About the datasets
+
+- data.csv
+This dataset is about theaters in Veneto, we focused on the districts and the cities for this one, giving back to the user the information contained in the dataset.
+Source: https://dati.veneto.it/opendata/spazi_teatrali_del_veneto
+
+- cinema.csv
+This second dataset, seen as it is, deals with different recreative places in Veneto, for our functions, we focused only on cinemas, ignoring the others we were not interested in.
+Also for this one we focused on district, but then we chose to add another interesting data: the capacity of each cinema.
+In this case so, we developed a function that gives back information about cinemas in a chosen district and another function that gives back the mean, minimum and maximum value of capacity of cinemas in a chosen district.
+Source: https://dati.veneto.it/opendata/sale_cinematografiche_del_veneto_2012
+
 
 # Flask and FastAPI Dockerized Project
 
@@ -37,6 +53,7 @@ Bidirectional communication is established between the Frontend (Flask) and Back
     - .vscode/: folder to launch json
     - mymodules/: folder with functions file
     - data.csv: our csv dataset
+    - cinema.csv: our second csv dataset
     - tests/: folder with the file to run the tests
     
 - `frontend/`: Flask frontend implementation.
@@ -73,7 +90,7 @@ Bidirectional communication is established between the Frontend (Flask) and Back
 
 3. Open your web browser and navigate to [http://localhost:8080](http://localhost:8080) to access the `frontend` and [http://localhost:8081](http://localhost:8081) to access the `backend`.
 
-4. Use the form on the frontend to query Veneto theaters from the backend.
+4. Use the form on the frontend to query Veneto theaters and cinemas from the backend.
 
 ## Shutting Down the Docker Containers
 
@@ -178,9 +195,12 @@ Now you can manage the lifecycle of your Docker containers more flexibly.
 
 1. **Install Additional Modules:**
     ```bash
-    pip install new_module
+    pip install pytest
+    pip install python-multipart
+    pip install uvicorn
+    pip install pandas
+    pip install fastapi
     ```
-   Replace `new_module` with the names of the module you want to install.
 
 2. **Verify Installed Modules:**
     ```bash
