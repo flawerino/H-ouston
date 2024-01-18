@@ -2,6 +2,9 @@ import pandas as pd
 
 # Creating a string with districts' name from CSV file
 def print_province_names():
+    """
+    Creating a string containing the districts' name that are in the data.csv 
+    """
     #Load CSV file 
     df = pd.read_csv('/app/app/data.csv', sep = ';')
     print("Find the theaters in these districts:")
@@ -13,7 +16,6 @@ def print_province_names():
     #Creating a string with all the names
     names_str = ', '.join(province_names)
     return names_str
-    # Chiamata alla funzione
     result = print_province_names()
     print(result)
 
@@ -66,7 +68,7 @@ def city(city_name, df):
 
 def capacity_statistics(district_name, df2):
     """
-    Calculating mean, median, maximum and minimum capacity for the cinemas of a given district 
+    Calculating mean, maximum and minimum capacity for the cinemas of a given district 
     """
     df2 = pd.read_csv('/app/app/cinema.csv', sep = ';')
     #To select only the lines that regards CINEMA 
@@ -82,3 +84,27 @@ def capacity_statistics(district_name, df2):
     maximum = (df_cinema['Capienza'].max()).astype(str)
     minimum = (df_cinema['Capienza'].min()).astype(str)
     return {'mean': mean, 'maximum': maximum, 'minimum': minimum}
+
+
+def district_cinema(dis_name_cinema, df2):
+    """
+    Endpoint to query information based on dis_name_cinema.
+    Args:
+        dis_name_cinema (str): The name of the district.
+    Returns:
+        dis_info_cinema: Information for the provided dis_name_cinema.
+    """
+    df2 = pd.read_csv('/app/app/cinema.csv', sep = ';')
+    #To select only the lines that regards CINEMA 
+    df_cinema1 = df2[df2['Genere locale'] == 'CINEMA']
+    # Converting all the numbers inside the dataframe as strings for JSON
+    df_cinema = df_cinema1.astype(str)
+    # Check if the district_name exists in the 'name' column of the DataFrame
+    if (dis_name_cinema.upper()) in df_cinema['Provincia'].values:
+    # Get rows where 'Provincia' is equal to district_name
+        dis_info_cinema = df_cinema[df_cinema['Provincia'] == dis_name_cinema].to_dict(orient='records') 
+        for info_cinema in dis_info_cinema:
+            print(info_cinema)
+        return {"dis_name_cinema": dis_name_cinema, "dis_info_cinema": dis_info_cinema}
+    else:
+        return {"Error": "District not found"}
