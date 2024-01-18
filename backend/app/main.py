@@ -14,14 +14,13 @@ from .mymodules.function import district, city, capacity_statistics, district_ci
 
 app = FastAPI()
 
-df = pd.read_csv('/app/app/data.csv', sep = ';')
+df = pd.read_csv('/app/app/data.csv', sep=';')
 # Converting all the numbers inside the dataframe as strings for JSON
 df = df.astype(str)
 
-df2 = pd.read_csv('/app/app/cinema.csv', sep = ';')
-#To select only the lines that regards CINEMA 
+df2 = pd.read_csv('/app/app/cinema.csv', sep=';')
+# To select only the lines that regards CINEMA
 df_cinema = df2[df2['Genere locale'] == 'CINEMA']
-
 
 
 @app.get('/')
@@ -35,7 +34,7 @@ def read_root():
     return {"Hello": "Veneto"}
 
 
-#Create choices for SelectField 
+# Create choices for SelectField
 @app.post('/select_districts')
 async def select_districts():
     # Extract unique city values from the filtered data
@@ -45,7 +44,8 @@ async def select_districts():
 
     return result
 
-#Function 1
+
+# Function 1
 @app.get('/district/{district_name}')
 def get_district(district_name: str):
     """
@@ -61,7 +61,7 @@ def get_district(district_name: str):
     return {"district_name": district_name, "district_info": dist}
 
 
-#Function 2
+# Function 2
 @app.get('/city/{city_name}')
 def get_city(city_name: str):
     """
@@ -76,7 +76,8 @@ def get_city(city_name: str):
     cit = city(city_name, df)
     return {"city_name": city_name, "city_info": cit}
 
-#Function 3
+
+# Function 3
 @app.get('/capacity_statistics/{district_name}')
 def get_data(district_name: str):
     """
@@ -86,7 +87,7 @@ def get_data(district_name: str):
     return {"district_name": district_name,'mean': data["mean"], 'maximum': data["maximum"], 'minimum': data["minimum"]}
 
 
-#Function 4
+# Function 4
 @app.post("/download")
 async def download(selected_option: str = Form(...), district: str = Form(...), city: str  = Form(...)):
     
@@ -131,7 +132,7 @@ async def select_theater(city: str  = Form(...)):
 
     return result
 
-#Function 5
+# Function 5
 @app.get('/district_cinema/{dis_name_cinema}')
 def get_district_cinema(dis_name_cinema: str):
     """
